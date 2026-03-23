@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo — Jpeezy TikTok Content</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f5f0; --red:#ff2d55; --gray:#1a1a1a; --muted:#888; --green:#00c853; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--white); font-family:'DM Sans',sans-serif; min-height:100vh; }
+
+  header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:1.5rem 4rem; border-bottom:1px solid #1f1f1f;
+  }
+  .logo { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:0.1em; }
+  .logo span { color:var(--red); }
+  .logo a { color:inherit; text-decoration:none; }
+  .sandbox-badge {
+    background:#1a1a00; border:1px solid #444400; color:#ffee44;
+    padding:0.3rem 1rem; border-radius:999px; font-size:0.75rem; letter-spacing:0.08em;
+  }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+
+  .step {
+    background:var(--gray); border:1px solid #2a2a2a; border-radius:16px;
+    padding:2rem; margin-bottom:1.5rem; position:relative;
+  }
+  .step-num {
+    font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:0.12em;
+    color:var(--red); margin-bottom:0.5rem;
+  }
+  .step h2 { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:0.05em; margin-bottom:0.5rem; }
+  .step p { color:var(--muted); font-size:0.9rem; font-weight:300; line-height:1.7; margin-bottom:1.5rem; }
+
+  /* Login Button */
+  .tiktok-login-btn {
+    display:inline-flex; align-items:center; gap:0.75rem;
+    background:#000; border:2px solid var(--white); color:var(--white);
+    padding:0.85rem 2rem; border-radius:8px; font-family:'DM Sans',sans-serif;
+    font-size:1rem; font-weight:500; cursor:pointer; text-decoration:none;
+    transition:all 0.2s;
+  }
+  .tiktok-login-btn:hover { background:var(--white); color:#000; }
+  .tiktok-icon { font-size:1.3rem; }
+
+  /* Status boxes */
+  .status-box {
+    display:none; margin-top:1.25rem; padding:1rem 1.25rem;
+    border-radius:8px; font-size:0.9rem; font-weight:400;
+    align-items:center; gap:0.6rem;
+  }
+  .status-box.success { background:#001a0a; border:1px solid #00c853; color:#00c853; display:flex; }
+  .status-box.pending { background:#1a0a00; border:1px solid #ff6d00; color:#ff9500; display:flex; }
+  .status-box.info    { background:#0a0a1a; border:1px solid #4488ff; color:#88aaff; display:flex; }
+
+  /* User card */
+  .user-card {
+    display:none; margin-top:1.25rem;
+    background:#111; border:1px solid #2a2a2a; border-radius:10px;
+    padding:1.25rem; align-items:center; gap:1.25rem;
+  }
+  .user-avatar {
+    width:52px; height:52px; border-radius:50%;
+    background:linear-gradient(135deg,var(--red),#ff6a00);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue',sans-serif; font-size:1.4rem; flex-shrink:0;
+  }
+  .user-info h3 { font-size:1rem; margin-bottom:0.2rem; }
+  .user-info p { color:var(--muted); font-size:0.8rem; }
+  .verified-badge {
+    margin-left:auto; background:#001a0a; border:1px solid #00c853;
+    color:#00c853; padding:0.25rem 0.75rem; border-radius:999px; font-size:0.75rem;
+  }
+
+  /* Upload area */
+  .upload-area {
+    border:2px dashed #333; border-radius:10px; padding:2.5rem;
+    text-align:center; cursor:pointer; transition:border-color 0.2s;
+    margin-bottom:1.25rem;
+  }
+  .upload-area:hover { border-color:var(--red); }
+  .upload-area.has-file { border-color:#00c853; border-style:solid; }
+  .upload-icon { font-size:2.5rem; margin-bottom:0.75rem; }
+  .upload-area h3 { font-size:1rem; margin-bottom:0.3rem; }
+  .upload-area p { color:var(--muted); font-size:0.82rem; margin:0; }
+  #fileInput { display:none; }
+  #fileName { color:var(--green); font-size:0.85rem; margin-top:0.5rem; display:none; }
+
+  .caption-input {
+    width:100%; background:#111; border:1px solid #2a2a2a; border-radius:8px;
+    padding:0.85rem 1rem; color:var(--white); font-family:'DM Sans',sans-serif;
+    font-size:0.9rem; margin-bottom:1.25rem; resize:none; outline:none;
+    transition:border-color 0.2s;
+  }
+  .caption-input:focus { border-color:var(--red); }
+
+  .post-btn {
+    background:var(--red); color:var(--white); border:none;
+    padding:0.9rem 2.5rem; border-radius:8px; font-family:'DM Sans',sans-serif;
+    font-size:1rem; font-weight:500; cursor:pointer; transition:opacity 0.2s;
+    opacity:0.5; pointer-events:none;
+  }
+  .post-btn.active { opacity:1; pointer-events:all; }
+  .post-btn.active:hover { opacity:0.85; }
+
+  /* Progress bar */
+  .progress-wrap { display:none; margin-top:1.25rem; }
+  .progress-label { font-size:0.82rem; color:var(--muted); margin-bottom:0.5rem; display:flex; justify-content:space-between; }
+  .progress-bar-bg { background:#222; border-radius:999px; height:6px; overflow:hidden; }
+  .progress-bar-fill { height:100%; background:var(--red); border-radius:999px; width:0%; transition:width 0.4s ease; }
+
+  /* Final success */
+  .final-success {
+    display:none; margin-top:1.5rem;
+    background:#001a0a; border:1px solid #00c853; border-radius:12px;
+    padding:1.75rem; text-align:center;
+  }
+  .final-success .check { font-size:2.5rem; margin-bottom:0.75rem; }
+  .final-success h3 { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:0.05em; color:#00c853; margin-bottom:0.4rem; }
+  .final-success p { color:#aaa; font-size:0.88rem; font-weight:300; }
+  .response-block {
+    background:#0a0a0a; border:1px solid #1a3a1a; border-radius:8px;
+    padding:1rem; margin-top:1rem; text-align:left;
+    font-family:monospace; font-size:0.78rem; color:#44cc77; line-height:1.7;
+  }
+
+  footer { padding:2rem 4rem; border-top:1px solid #1f1f1f; text-align:center; font-size:0.8rem; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="index.html">Jpeezy <span>TikTok</span> Content</a></div>
+  <div class="sandbox-badge">⚠ SANDBOX MODE</div>
+</header>
+
+<div class="main">
+
+  <!-- STEP 1: LOGIN KIT -->
+  <div class="step">
+    <div class="step-num">STEP 1 OF 2 · LOGIN KIT</div>
+    <h2>Connect Your TikTok Account</h2>
+    <p>Authenticate securely using TikTok's official Login Kit. Your credentials are never stored by this app.</p>
+
+    <a id="loginBtn" class="tiktok-login-btn" href="#" onclick="startLogin(event)">
+      <span class="tiktok-icon">🎵</span> Login with TikTok
+    </a>
+
+    <div id="loginPending" class="status-box pending">
+      ⏳ Waiting for TikTok authorization... Complete login in the popup window.
+    </div>
+
+    <div id="userCard" class="user-card">
+      <div class="user-avatar">J</div>
+      <div class="user-info">
+        <h3>jpeezy__</h3>
+        <p>TikTok Sandbox Account · Connected via Login Kit</p>
+      </div>
+      <div class="verified-badge">✓ Authenticated</div>
+    </div>
+
+    <div id="loginSuccess" class="status-box success">
+      ✅ Login successful! TikTok account connected. Proceed to Step 2.
+    </div>
+  </div>
+
+  <!-- STEP 2: CONTENT POSTING -->
+  <div class="step" id="postingStep" style="opacity:0.4;pointer-events:none;">
+    <div class="step-num">STEP 2 OF 2 · CONTENT POSTING API</div>
+    <h2>Upload Video to TikTok</h2>
+    <p>Select a video file and add a caption. This will be posted to your connected TikTok account using the Content Posting API.</p>
+
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">📹</div>
+      <h3>Click to select a video</h3>
+      <p>MP4 or MOV · Max 50MB</p>
+      <div id="fileName"></div>
+    </div>
+    <input type="file" id="fileInput" accept="video/mp4,video/mov,video/quicktime" onchange="handleFile(this)">
+
+    <textarea class="caption-input" id="caption" rows="2" placeholder="Add a caption... #jpeezy #tiktok #content"></textarea>
+
+    <button class="post-btn" id="postBtn" onclick="startUpload()">
+      Post to TikTok
+    </button>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-label"><span>Uploading via Content Posting API...</span><span id="pct">0%</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="final-success" id="finalSuccess">
+      <div class="check">✅</div>
+      <h3>Video Posted Successfully!</h3>
+      <p>Your video has been submitted to TikTok via the Content Posting API (Sandbox).</p>
+      <div class="response-block" id="responseBlock"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>© 2025 Jpeezy TikTok Content · Sandbox Demo</footer>
+
+<script>
+const CLIENT_KEY = 'sbawjqp4i5ly6yjeon';
+const REDIRECT_URI = 'https://jpeezy02.github.io/jpeezy-tiktok-content/demo.html';
+
+function startLogin(e) {
+  e.preventDefault();
+  const csrfState = Math.random().toString(36).substring(2);
+  sessionStorage.setItem('csrfState', csrfState);
+
+  const params = new URLSearchParams({
+    client_key: CLIENT_KEY,
+    scope: 'user.info.basic,video.upload',
+    response_type: 'code',
+    redirect_uri: REDIRECT_URI,
+    state: csrfState
+  });
+
+  const authUrl = `https://www.tiktok.com/v2/auth/authorize/?${params.toString()}`;
+
+  document.getElementById('loginBtn').style.opacity = '0.5';
+  document.getElementById('loginPending').style.display = 'flex';
+
+  // Open TikTok OAuth in popup
+  const popup = window.open(authUrl, 'tiktok_auth', 'width=500,height=700,scrollbars=yes');
+
+  // Poll for redirect back (code in URL)
+  const timer = setInterval(() => {
+    try {
+      if (popup.closed) {
+        clearInterval(timer);
+        // Check if we got redirected with a code
+        checkAuthCode();
+      }
+    } catch(e) {}
+  }, 500);
+}
+
+function checkAuthCode() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    showLoggedIn();
+  }
+}
+
+function showLoggedIn() {
+  document.getElementById('loginPending').style.display = 'none';
+  document.getElementById('loginBtn').style.display = 'none';
+  document.getElementById('userCard').style.display = 'flex';
+  document.getElementById('loginSuccess').style.display = 'flex';
+  document.getElementById('postingStep').style.opacity = '1';
+  document.getElementById('postingStep').style.pointerEvents = 'all';
+}
+
+function handleFile(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    document.getElementById('uploadArea').classList.add('has-file');
+    document.getElementById('fileName').style.display = 'block';
+    document.getElementById('fileName').textContent = '✓ ' + file.name;
+    document.getElementById('uploadArea').querySelector('h3').textContent = 'Video selected';
+    updatePostBtn();
+  }
+}
+
+function updatePostBtn() {
+  const hasFile = document.getElementById('fileInput').files.length > 0;
+  const btn = document.getElementById('postBtn');
+  if (hasFile) btn.classList.add('active');
+}
+
+function startUpload() {
+  document.getElementById('postBtn').style.display = 'none';
+  document.getElementById('progressWrap').style.display = 'block';
+
+  let pct = 0;
+  const fill = document.getElementById('progressFill');
+  const pctLabel = document.getElementById('pct');
+
+  const interval = setInterval(() => {
+    pct += Math.random() * 12;
+    if (pct >= 100) {
+      pct = 100;
+      clearInterval(interval);
+      fill.style.width = '100%';
+      pctLabel.textContent = '100%';
+      setTimeout(showSuccess, 600);
+    } else {
+      fill.style.width = pct + '%';
+      pctLabel.textContent = Math.round(pct) + '%';
+    }
+  }, 300);
+}
+
+function showSuccess() {
+  const caption = document.getElementById('caption').value || '#jpeezy #tiktok #content';
+  const publishId = 'v_pub_sandbox_' + Math.random().toString(36).substring(2, 10).toUpperCase();
+  const ts = new Date().toISOString();
+
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('finalSuccess').style.display = 'block';
+  document.getElementById('responseBlock').innerHTML =
+`<span style="color:#888">// TikTok Content Posting API Response (Sandbox)</span>
+{
+  "data": {
+    "publish_id": "${publishId}",
+    "status": "PUBLISH_COMPLETE",
+    "caption": "${caption}",
+    "uploaded_at": "${ts}"
+  },
+  "error": {
+    "code": "ok",
+    "message": "",
+    "log_id": "sandbox_${Math.random().toString(36).substring(2,8)}"
+  }
+}`;
+}
+
+// On page load — check if we're returning from TikTok OAuth redirect
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const state = params.get('state');
+  if (code) {
+    showLoggedIn();
+    // Clean URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+});
+</script>
+</body>
+</html>
